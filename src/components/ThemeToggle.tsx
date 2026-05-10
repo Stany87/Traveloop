@@ -13,6 +13,7 @@ export default function ThemeToggle({ className = "", variant = "landing" }: The
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sync theme from localStorage on mount
     setMounted(true);
     const saved = localStorage.getItem("traveloop-theme");
     const isDark = saved === "dark";

@@ -1,14 +1,14 @@
 "use client";
 
-import ItineraryBuilder from "@/components/ItineraryBuilder";
+import { useParams } from "next/navigation";
+import TripItineraryEditor from "@/components/TripItineraryEditor";
 
 export default function BuildTripPage() {
+  const params = useParams();
+  const id = params.id as string;
   return (
     <div className="pt-4">
-      {/* We reuse the beautifully designed ItineraryBuilder component here */}
-      <div className="-mt-20">
-        <ItineraryBuilder />
-      </div>
+      <TripItineraryEditor tripId={id} />
     </div>
   );
 }

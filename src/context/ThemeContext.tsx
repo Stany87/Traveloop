@@ -16,6 +16,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrate theme from storage
     setMounted(true);
     const saved = localStorage.getItem("traveloop-theme") as Theme | null;
     if (saved) {

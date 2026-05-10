@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Compass, Menu, X } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import Container from "./Container";
 import ThemeToggle from "./ThemeToggle";
 
@@ -39,9 +40,7 @@ export default function Navbar() {
       <Container className="flex items-center justify-between">
         {/* Logo */}
         <Link href="#" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 rounded-xl bg-[#e8834a]/90 flex items-center justify-center group-hover:bg-[#e8834a] transition-colors duration-300">
-            <Compass className="w-5 h-5 text-white" />
-          </div>
+          <Image src="/logo.png" alt="Traveloop Logo" width={40} height={40} className="object-contain" />
           <span className={`text-xl font-bold tracking-tight transition-colors duration-300 ${
             scrolled ? "text-[#1A2B3C] dark:text-white" : "text-white"
           }`}>

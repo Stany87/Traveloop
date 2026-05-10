@@ -1,0 +1,161 @@
+// Traveloop — PostgreSQL schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum TripStatus {
+  PLANNING
+  UPCOMING
+  COMPLETED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  firstName    String?
+  lastName     String?
+  name         String?
+  phone        String?
+  city         String?
+  country      String?
+  image        String?
+  bio          String?
+  baseCurrency String   @default("USD")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  trips        Trip[]
+  interactions TripInteraction[]
+
+  @@map("users")
+}
+
+model Trip {
+  id           String     @id @default(cuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title        String
+  destination  String
+  startDate    DateTime
+  endDate      DateTime
+  status       TripStatus @default(PLANNING)
+  coverImage   String?
+  travelerType String?
+  budgetTotal  Int?       /// stored in smallest currency unit (cents)
+  isPublic     Boolean    @default(false)
+  currency     String     @default("USD")
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  days             TripDay[]
+  expenses         Expense[]
+  notes            TripNote[]
+  packingCategories PackingCategory[]
+  interactions      TripInteraction[]
+
+  @@index([userId])
+  @@map("trips")
+}
+
+model TripDay {
+  id         String         @id @default(cuid())
+  tripId     String
+  trip       Trip           @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  dayIndex   Int
+  date       DateTime
+  title      String?
+  activities TripActivity[]
+
+  @@unique([tripId, dayIndex])
+  @@index([tripId])
+  @@map("trip_days")
+}
+
+model TripActivity {
+  id         String   @id @default(cuid())
+  dayId      String
+  day        TripDay  @relation(fields: [dayId], references: [id], onDelete: Cascade)
+  time       String
+  title      String
+  type       String
+  duration   String?
+  image      String?
+  costCents  Int?
+  completed  Boolean  @default(false)
+  sortOrder  Int      @default(0)
+
+  @@index([dayId])
+  @@map("trip_activities")
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  tripId      String
+  trip        Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  category    String
+  label       String?
+  amountCents Int
+  createdAt   DateTime @default(now())
+
+  @@index([tripId])
+  @@map("expenses")
+}
+
+model TripNote {
+  id        String   @id @default(cuid())
+  tripId    String
+  trip      Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tripId])
+  @@map("trip_notes")
+}
+
+model PackingCategory {
+  id        String        @id @default(cuid())
+  tripId    String
+  trip      Trip          @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  name      String
+  sortOrder Int           @default(0)
+  items     PackingItem[]
+
+  @@index([tripId])
+  @@map("packing_categories")
+}
+
+model PackingItem {
+  id         String          @id @default(cuid())
+  categoryId String
+  category   PackingCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  text       String
+  checked    Boolean         @default(false)
+  sortOrder  Int             @default(0)
+
+  @@index([categoryId])
+  @@map("packing_items")
+}
+
+model TripInteraction {
+  id        String   @id @default(cuid())
+  tripId    String
+  userId    String
+  type      String
+  createdAt DateTime @default(now())
+
+  trip  Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  user  User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tripId, userId, type])
+  @@index([tripId])
+  @@index([userId])
+  @@map("trip_interactions")
+}
