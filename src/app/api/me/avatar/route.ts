@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { writeFile, mkdir } from "fs/promises";
+import { writeFile, mkdir, readdir, unlink } from "fs/promises";
 import path from "path";
 
 export async function POST(req: Request) {
@@ -27,11 +27,22 @@ export async function POST(req: Request) {
   const uploadDir = path.join(process.cwd(), "public", "uploads", "avatars");
   await mkdir(uploadDir, { recursive: true });
 
-  const filename = `${session.user.id}${ext}`;
+  try {
+    const files = await readdir(uploadDir);
+    for (const f of files) {
+      if (f.startsWith(`${session.user.id}-`)) {
+        await unlink(path.join(uploadDir, f)).catch(() => {});
+      }
+    }
+  } catch {
+    // Ignore errors reading dir
+  }
+
+  const filename = `${session.user.id}-${Date.now()}${ext}`;
   const filepath = path.join(uploadDir, filename);
   await writeFile(filepath, buffer);
 
-  const url = `/uploads/avatars/${filename}?t=${Date.now()}`;
+  const url = `/uploads/avatars/${filename}`;
 
   return NextResponse.json({ url });
 }

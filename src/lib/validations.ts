@@ -27,7 +27,7 @@ export const profileUpdateSchema = z.object({
     .string()
     .max(500)
     .optional()
-    .refine((s) => s === undefined || s === "" || /^https?:\/\/.+/i.test(s), "Profile image must be a valid http(s) URL"),
+    .refine((s) => s === undefined || s === "" || /^https?:\/\/.+/i.test(s) || s.startsWith("/"), "Profile image must be a valid http(s) URL or local path"),
   baseCurrency: z.string().length(3).optional(),
 });
 
